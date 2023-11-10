@@ -1,0 +1,16 @@
+version: "2.1"
+services:
+  navegador:
+    container_name: navegador
+    environment:
+      - TZ=Brazil/East
+    volumes:
+      - ./config:/config
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "0080:8080"
+    shm_size: "4gb"
+    restart: unless-stopped
+    image: victor/navegador
