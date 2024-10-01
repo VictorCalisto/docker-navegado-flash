@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Web Browser
+Category=Browser
+OnlyShowIn=XFCE;
+X-XFCE-MimeType=x-scheme-handler/http;x-scheme-handler/https;
+X-AppStream-Ignore=True
+Exec=/usr/bin/firefox
+Terminal=false
+Icon=org.xfce.webbrowser
+StartupNotify=true

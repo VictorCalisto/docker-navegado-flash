@@ -1,73 +1,47 @@
-FROM lsiobase/guacgui
+FROM linuxserver/webtop:ubuntu-xfce
 
-#########################################
-##        ENVIRONMENTAL CONFIG         ##
-#########################################
-
-# Set environment variables
-
-# User/Group Id gui app will be executed as default are 99 and 100
-ENV USER_ID=99
-ENV GROUP_ID=100
-
-# Gui App Name default is "GUI_APPLICATION"
-ENV APP_NAME ALL
-
-# Default resolution, change if you like
-ENV WIDTH=1920
-ENV HEIGHT=1080
-ENV DISPLAY=:1
-ENV HOME=/config
-
-
-#########################################
-##           INSTALL SOFTWARE          ##
-#########################################
-
-COPY ./deps /tmp
-
-RUN echo "**** download software ****" && \
+ENV PUID=1000
+ENV PGID=1000
+ENV TZ=America/Sao_Paulo
+ENV LANG=pt_BR.UTF-8
+ENV LANGUAGE=pt_BR:pt
+ENV LC_ALL=pt_BR.UTF-8
+ENV SUBFOLDER=/
+ENV TITLE=Webtop
+EXPOSE 3000
+EXPOSE 3001
+RUN \
+	echo "**** download software ****" && \
 	apt-get update && \
+	apt-get -y remove firefox && \
+	apt-get install -qy --no-install-recommends wget bzip2 && \
+	wget -P /tmp https://ftp.mozilla.org/pub/firefox/releases/53.0.3/linux-x86_64/pt-BR/firefox-53.0.3.tar.bz2  && \
+	wget -P /tmp https://fpdownload.macromedia.com/pub/flashplayer/updaters/32/flash_player_sa_linux_debug.x86_64.tar.gz && \
+	wget -P /tmp https://fpdownload.macromedia.com/pub/flashplayer/updaters/32/flash_player_sa_linux.x86_64.tar.gz && \
+	wget -O /tmp/flashplayer32_0r0_371_linux_debug.x86_64.tar.gz https://archive.org/download/flashplayerarchive/pub/flashplayer/installers/archive/fp_32.0.0.371_archive.zip/32_0_r0_371_debug%2Fflashplayer32_0r0_371_linux_debug.x86_64.tar.gz && \
 	echo "**** extract files ****" && \
-	ls -l /tmp && mkdir -p /player && \
+	ls -l /tmp && mkdir /player && \
 	tar -C /player -zxvf /tmp/flash_player_sa_linux.x86_64.tar.gz flashplayer && \
 	tar -C /player -zxvf /tmp/flash_player_sa_linux_debug.x86_64.tar.gz flashplayerdebugger && \
 	tar -C / -zxvf /tmp/flashplayer32_0r0_371_linux_debug.x86_64.tar.gz usr && \
 	mkdir -p /usr/lib/mozilla/plugins && \
-	tar -C /usr/lib/mozilla/plugins -zxvf /tmp/flashplayer32_0r0_371_linux_debug.x86_64.tar.gz libflashplayer.so && \
-	tar -xf /tmp/firefox-53.0.3.tar.bz2 && \
-	ln -sf /firefox/firefox /usr/bin/firefox && \
-	ln -sf /player/flashplayer /usr/bin/flashplayer && \
-	ln -sf /player/flashplayerdebugger /usr/bin/flashplayerdebugger && \
+	tar -C /usr/lib/mozilla/plugins -zxvf /tmp/flashplayer32_0r0_371_linux_debug.x86_64.tar.gz libflashplayer.so &&\
+	ln -s /player/flashplayer /usr/bin/flashplayer && \
+	ln -s /player/flashplayerdebugger /usr/bin/flashplayerdebugger && \
+  tar -xf /tmp/firefox-53.0.3.tar.bz2 && \
+	ln -s /firefox/firefox /usr/bin/firefox && \
 	echo "**** install deps ****" && \
 	apt-get install -qy --no-install-recommends \
 		x11-apps \
 		dbus-x11 \
-		libcurl3 \
+		libcurl4 \
 		libgtk-3-0 \
 		libgtk2.0-0 \
 		libdbus-glib-1.2 \
 		busybox \
-		fonts-wqy-microhei && \
-	echo "**** clean up ****"  && \
+		fonts-wqy-microhei &&\	
+	echo "**** clean up ****" && \
  	rm -rf \
 	/tmp/* \
 	/var/lib/apt/lists/* \
 	/var/tmp/*
-	
-
-#########################################
-##         EXPORTS AND VOLUMES         ##
-#########################################
-
-# Place whater volumes and ports you want exposed here:
-# ports and volumes
-RUN mkdir -p /etc/services.d/flash
-COPY run /etc/services.d/flash
-COPY boot.sh /
-COPY ./flash /flash
-RUN chmod +x /etc/services.d/flash/run
-RUN chmod +x boot.sh
-
-CMD ["/etc/services.d/flash/run"]
-# http://localhost:0080/#/client/bXljb25maWcAYwBub2F1dGg=

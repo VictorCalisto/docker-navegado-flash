@@ -1,16 +1,17 @@
-version: "2.1"
+version: "3"
 services:
-  navegador:
-    container_name: navegador
-    environment:
-      - TZ=Brazil/East
-    volumes:
-      - ./config:/config
+  flash:
+    image: flash
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: flash
+    security_opt:
+      - seccomp:unconfined #optional
     ports:
-      - "0080:8080"
-    shm_size: "4gb"
+      - 9900:3000
+      - 9001:3001
+    shm_size: "1gb" #optional
     restart: unless-stopped
-    image: victor/navegador
+    volumes:
+    - ./config:/config
